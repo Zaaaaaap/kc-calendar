@@ -16,9 +16,11 @@ PANDASCORE_TEAMS = [
 ]
 
 LIQUIPEDIA_PAGES = [
-    {"wiki": "leagueoflegends", "page": "LFL/2026/Spring",                     "league": "LFL"},
-    {"wiki": "leagueoflegends", "page": "Nexus_League/2026/Spring",            "league": "Div2 LoL"},
-    {"wiki": "valorant",        "page": "VCT/2026/Game_Changers/EMEA/Stage_2", "league": "VCT GC"},
+    {"wiki": "leagueoflegends", "page": "LFL/2026/Spring/Group_Stage",                      "league": "LFL"},
+    {"wiki": "leagueoflegends", "page": "LFL/2026/Spring/Playoffs",                         "league": "LFL"},
+    {"wiki": "leagueoflegends", "page": "Nexus_League/2026/Spring/Group Stage",             "league": "Div2 LoL"},
+    {"wiki": "leagueoflegends", "page": "Nexus_League/2026/Spring/Playoffs",                "league": "Div2 LoL"},
+    {"wiki": "valorant",        "page": "VCT/2026/Game Changers/EMEA/Stage 2/Group Stage",  "league": "VCT GC"},
 ]
 
 
