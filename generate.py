@@ -6,37 +6,25 @@ from zoneinfo import ZoneInfo
 TOKEN = os.environ["PANDASCORE_TOKEN"]
 PARIS = ZoneInfo("Europe/Paris")
 
-# Les équipes KC à suivre, par jeu
 TEAMS = [
-    {"game": "lol",      "slug": "karmine-corp"},
-    {"game": "valorant", "slug": "karmine-corp"},
-    {"game": "valorant", "slug": "karmine-corp-female"},
+    {"game": "lol",      "id": 134078, "label": "KC Academy (LEC)"},
+    {"game": "lol",      "id": 128268, "label": "KC Blue (LFL)"},
+    {"game": "lol",      "id": 136080, "label": "KC Blue Stars (Div2)"},
+    {"game": "valorant", "id": 130922, "label": "KC Valorant (VCT)"},
+    {"game": "valorant", "id": 132777, "label": "KC GC (Game Changers)"},
 ]
 
-# Les ligues autorisées (slugs exacts de PandaScore)
-ALLOWED_LEAGUES = {"lec", "lfl", "lfl-division-2", "vct-emea", "vct-game-changers-emea"}
-
-def fetch_matches(game, team_slug):
+def fetch_matches(game, team_id):
     url = f"https://api.pandascore.co/{game}/matches/upcoming"
     params = {
         "token": TOKEN,
-        "filter[opponent_id]": get_team_id(game, team_slug),
+        "filter[opponent_id]": team_id,
         "per_page": 50,
         "sort": "begin_at",
     }
     r = requests.get(url, params=params)
     r.raise_for_status()
     return r.json()
-
-def get_team_id(game, team_slug):
-    url = f"https://api.pandascore.co/{game}/teams"
-    params = {"token": TOKEN, "search[slug]": team_slug}
-    r = requests.get(url, params=params)
-    r.raise_for_status()
-    data = r.json()
-    if not data:
-        return None
-    return data[0]["id"]
 
 def match_to_ics(match):
     uid = f"kc-{match['id']}@karmine-calendar"
@@ -70,31 +58,14 @@ def main():
     seen_ids = set()
 
     for team in TEAMS:
-        team_id = get_team_id(team["game"], team["slug"])
-        if not team_id:
-            print(f"Équipe introuvable : {team['slug']}")
-            continue
-
-        url = f"https://api.pandascore.co/{team['game']}/matches/upcoming"
-        params = {
-            "token": TOKEN,
-            "filter[opponent_id]": team_id,
-            "per_page": 50,
-            "sort": "begin_at",
-        }
-        r = requests.get(url, params=params)
-        r.raise_for_status()
-        matches = r.json()
+        print(f"Récupération des matchs pour {team['label']}...")
+        matches = fetch_matches(team["game"], team["id"])
+        print(f"  → {len(matches)} matchs trouvés")
 
         for match in matches:
             mid = match.get("id")
             if mid in seen_ids:
                 continue
-
-            league_slug = match.get("league", {}).get("slug", "")
-            if not any(league_slug.startswith(allowed) for allowed in ALLOWED_LEAGUES):
-                continue
-
             event = match_to_ics(match)
             if event:
                 events.append(event)
@@ -116,7 +87,7 @@ def main():
     with open("docs/calendar.ics", "w", encoding="utf-8") as f:
         f.write(ics)
 
-    print(f"{len(events)} matchs écrits dans docs/calendar.ics")
+    print(f"\n{len(events)} matchs écrits dans docs/calendar.ics")
 
 if __name__ == "__main__":
     main()
