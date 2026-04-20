@@ -14,6 +14,8 @@ TEAMS = [
     {"game": "valorant", "id": 132777, "label": "KC GC (Game Changers)"},
 ]
 
+KC_NAMES = {"Karmine Corp", "Karmine Corp Blue", "Karmine Corp GC", "Karmine Corp Blue Stars"}
+
 def fetch_matches(game, team_id):
     url = f"https://api.pandascore.co/{game}/matches/upcoming"
     params = {
@@ -38,9 +40,14 @@ def match_to_ics(match):
     league_name = match.get("league", {}).get("name", "")
     serie_name  = match.get("serie", {}).get("full_name", "")
     opponents   = match.get("opponents", [])
-    teams       = " vs ".join(o["opponent"]["name"] for o in opponents)
-    summary     = f"KC | {teams} — {league_name}"
-    description = f"{league_name} {serie_name}\\n{teams}"
+
+    opponent = next(
+        (o["opponent"]["name"] for o in opponents if o["opponent"]["name"] not in KC_NAMES),
+        "Adversaire inconnu"
+    )
+
+    summary     = f"{league_name} | {opponent} vs Karmine Corp"
+    description = f"{league_name} {serie_name}\\n{opponent} vs Karmine Corp"
 
     return "\n".join([
         "BEGIN:VEVENT",
