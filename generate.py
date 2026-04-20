@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 TOKEN = os.environ["PANDASCORE_TOKEN"]
 PARIS = ZoneInfo("Europe/Paris")
 
-KC_NAMES = {"Karmine Corp", "Karmine Corp Blue", "Karmine Corp GC", "Karmine Corp Blue Stars"}
+KC_NAMES = {"Karmine Corp Blue", "Karmine Corp GC", "Karmine Corp Blue Stars", "Karmine Corp"}
 
 PANDASCORE_TEAMS = [
     {"game": "lol",      "id": 134078, "label": "KC Academy (LEC)"},
@@ -16,11 +16,11 @@ PANDASCORE_TEAMS = [
 ]
 
 LIQUIPEDIA_PAGES = [
-    {"wiki": "leagueoflegends", "page": "LFL/2026/Spring/Group_Stage",                      "league": "LFL"},
-    {"wiki": "leagueoflegends", "page": "LFL/2026/Spring/Playoffs",                         "league": "LFL"},
-    {"wiki": "leagueoflegends", "page": "Nexus_League/2026/Spring/Group Stage",             "league": "Div2 LoL"},
-    {"wiki": "leagueoflegends", "page": "Nexus_League/2026/Spring/Playoffs",                "league": "Div2 LoL"},
-    {"wiki": "valorant",        "page": "VCT/2026/Game Changers/EMEA/Stage 2/Group Stage",  "league": "VCT GC"},
+    {"wiki": "leagueoflegends", "page": "LFL/2026/Spring/Group_Stage",                     "league": "LFL"},
+    {"wiki": "leagueoflegends", "page": "LFL/2026/Spring/Playoffs",                        "league": "LFL"},
+    {"wiki": "leagueoflegends", "page": "Nexus_League/2026/Spring/Group Stage",            "league": "Div2 LoL"},
+    {"wiki": "leagueoflegends", "page": "Nexus_League/2026/Spring/Playoffs",               "league": "Div2 LoL"},
+    {"wiki": "valorant",        "page": "VCT/2026/Game Changers/EMEA/Stage 2/Group Stage", "league": "VCT GC"},
 ]
 
 
@@ -87,29 +87,35 @@ def parse_liquipedia_matches(data, league_label):
     events = []
     try:
         wikitext = data["parse"]["wikitext"]["*"]
-        print(f"  [DEBUG] Extrait wikitext: {wikitext[:2000]}")
     except (KeyError, TypeError):
         print(f"  -> Impossible de lire le wikitext pour {league_label}")
         return events
 
-    pattern = re.compile(
-        r"\|\s*team1\s*=\s*([^\|\}\n]+).*?\|\s*team2\s*=\s*([^\|\}\n]+).*?\|\s*date\s*=\s*([^\|\}\n]+)",
-        re.DOTALL
-    )
+    match_blocks = re.findall(r"\{\{Match\b(.*?)\}\}", wikitext, re.DOTALL)
 
-    for m in pattern.finditer(wikitext):
-        team1 = m.group(1).strip()
-        team2 = m.group(2).strip()
-        date_str = m.group(3).strip()
+    for block in match_blocks:
+        opponents_found = re.findall(r"\{\{TeamOpponent\|([^\|\}\n]+)", block)
+        if len(opponents_found) < 2:
+            continue
+
+        team1 = opponents_found[0].strip()
+        team2 = opponents_found[1].strip()
 
         is_kc = any(kc.lower() in team1.lower() or kc.lower() in team2.lower() for kc in KC_NAMES)
         if not is_kc:
             continue
 
         opponent = team2 if any(kc.lower() in team1.lower() for kc in KC_NAMES) else team1
+        if not opponent:
+            opponent = "Adversaire inconnu"
+
+        date_match = re.search(r"\|date=(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})", block)
+        if not date_match:
+            continue
+        date_str = date_match.group(1).strip()
 
         try:
-            dt = datetime.strptime(date_str[:16], "%Y-%m-%d %H:%M")
+            dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
             dt = dt.replace(tzinfo=PARIS)
             dtstart = dt.strftime("%Y%m%dT%H%M%S")
         except ValueError:
@@ -141,7 +147,7 @@ def main():
                 seen_ids.add(mid)
 
     for lp in LIQUIPEDIA_PAGES:
-        print(f"Liquipedia — {lp['league']}...")
+        print(f"Liquipedia — {lp['league']} ({lp['page']})...")
         data = fetch_liquipedia(lp["wiki"], lp["page"])
         lp_events = parse_liquipedia_matches(data, lp["league"])
         print(f"  -> {len(lp_events)} matchs KC trouvés")
