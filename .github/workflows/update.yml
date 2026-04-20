@@ -1,0 +1,35 @@
+name: Update KC Calendar
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # toutes les heures
+  workflow_dispatch:        # permet de lancer manuellement
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Generate calendar
+        env:
+          PANDASCORE_TOKEN: ${{ secrets.PANDASCORE_TOKEN }}
+        run: python generate.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/calendar.ics
+          git diff --staged --quiet || git commit -m "Update calendar $(date -u +'%Y-%m-%d %H:%M')"
+          git push
