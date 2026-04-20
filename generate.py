@@ -85,6 +85,7 @@ def parse_liquipedia_matches(data, league_label):
     events = []
     try:
         wikitext = data["parse"]["wikitext"]["*"]
+        print(f"  [DEBUG] Extrait wikitext: {wikitext[:2000]}")
     except (KeyError, TypeError):
         print(f"  -> Impossible de lire le wikitext pour {league_label}")
         return events
