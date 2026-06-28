@@ -6,11 +6,11 @@ X-WR-CALNAME:Karmine Corp
 X-WR-TIMEZONE:Europe/Paris
 REFRESH-INTERVAL;VALUE=DURATION:PT1H
 BEGIN:VEVENT
-UID:kc-ps-1524754@karmine-calendar
-DTSTAMP:20260628T051633Z
-DTSTART;TZID=Europe/Paris:20260628T100000
+UID:kc-ps-1524756@karmine-calendar
+DTSTAMP:20260628T085147Z
+DTSTART;TZID=Europe/Paris:20260629T050000
 DURATION:PT2H
-SUMMARY:Mid-Season Invitational | Deep Cross Gaming vs Karmine Corp
-DESCRIPTION:Mid-Season Invitational\nDeep Cross Gaming vs Karmine Corp
+SUMMARY:Mid-Season Invitational | T1 vs Karmine Corp
+DESCRIPTION:Mid-Season Invitational\nT1 vs Karmine Corp
 END:VEVENT
 END:VCALENDAR
