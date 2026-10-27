@@ -6,11 +6,11 @@ X-WR-CALNAME:Karmine Corp
 X-WR-TIMEZONE:Europe/Paris
 REFRESH-INTERVAL;VALUE=DURATION:PT1H
 BEGIN:VEVENT
-UID:kc-ps-1710997@karmine-calendar
-DTSTAMP:20261026T163211Z
-DTSTART;TZID=Europe/Paris:20261026T190000
+UID:kc-ps-1711004@karmine-calendar
+DTSTAMP:20261027T011140Z
+DTSTART;TZID=Europe/Paris:20261029T210000
 DURATION:PT2H
-SUMMARY:Worlds | Bilibili Gaming vs Karmine Corp
-DESCRIPTION:Worlds\nBilibili Gaming vs Karmine Corp
+SUMMARY:Worlds | CTBC Flying Oyster vs Karmine Corp
+DESCRIPTION:Worlds\nCTBC Flying Oyster vs Karmine Corp
 END:VEVENT
 END:VCALENDAR
